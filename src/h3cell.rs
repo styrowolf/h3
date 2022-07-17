@@ -6,7 +6,7 @@ use bitvec::prelude::*;
 use rand::Rng;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-pub struct H3Cell(u64);
+pub struct H3Cell(pub(crate) u64);
 
 impl H3Cell {
     pub unsafe fn new_unchecked(n: u64) -> Self {

@@ -1,6 +1,7 @@
 use h3ron_h3_sys::GeoCoord;
 
 use crate::H3Cell;
+use crate::ffi;
 
 #[derive(Debug, Copy, Clone)]
 pub struct LatLon {
@@ -21,8 +22,8 @@ impl LatLon {
 
     pub fn to_h3_cell(&self, res: u32) -> H3Cell {
         let gc: GeoCoord = self.clone().into();
-        let h3index = unsafe { h3ron_h3_sys::geoToH3(&gc, res as std::os::raw::c_int) };
-        unsafe { H3Cell::new_unchecked(h3index) }
+        let h3index = ffi::geo_to_h3(gc, res);
+        H3Cell(h3index)
     }
 }
 
@@ -46,8 +47,6 @@ impl Into<GeoCoord> for LatLon {
 
 impl From<H3Cell> for LatLon {
     fn from(h3index: H3Cell) -> Self {
-        let mut gc = h3ron_h3_sys::GeoCoord { lat: 0.0, lon: 0.0 };
-        unsafe { h3ron_h3_sys::h3ToGeo(h3index.into(), &mut gc) };
-        LatLon::from(gc)
+        LatLon::from(ffi::h3_to_geo(h3index.as_u64()))
     }
 }
