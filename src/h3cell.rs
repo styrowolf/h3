@@ -1,9 +1,11 @@
+use std::fmt::Display;
+
 use crate::ffi;
 use anyhow::{anyhow, Result};
 use bitvec::prelude::*;
 use rand::Rng;
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct H3Cell(u64);
 
 impl H3Cell {
@@ -240,6 +242,12 @@ impl H3Cell {
 
     fn zeroed(&mut self) {
         self.as_bit_view_mut().store_be(0u64);
+    }
+}
+
+impl Display for H3Cell {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "H3Cell({:x})", self.0)
     }
 }
 
