@@ -243,6 +243,57 @@ impl H3Cell {
     fn zeroed(&mut self) {
         self.as_bit_view_mut().store_be(0u64);
     }
+
+    pub fn common_ancestor(&self, other: &Self) -> Option<u32> {
+        let res_1 = self.get_resolution();
+        let res_2 = other.get_resolution();
+        
+        let res_to_check_for = if res_1 > res_2 { 
+            res_2 
+        } else {
+            res_1
+        };
+
+        if self.get_base_cell() == other.get_base_cell() {
+            for i in 1..=res_to_check_for {
+                let is_eq = self.get_digit(i).unwrap() == other.get_digit(i).unwrap();
+                match is_eq {
+                    true => continue,
+                    false => return Some(i-1),
+                }
+            }
+            Some(res_to_check_for)
+        } else {
+            None
+        }
+    }
+
+    pub fn common_ancestor_at(&self, other: &Self, res: u32) -> bool {
+        let ancestry = self.common_ancestor(other);
+        match ancestry {
+            Some(a) => a >= res,
+            None => false,
+        }
+    }
+
+    pub fn get_immediate_neighbors(&self) -> Vec<H3Cell> {
+        self.get_neighbors(1)
+    }
+
+    pub fn get_neighbors(&self, k: u32) -> Vec<H3Cell> {
+        let v = ffi::kRing(self.0, k);
+        v.into_iter().filter_map(|n| {
+            if ffi::is_h3_valid(n) {
+                Some(Self(n))
+            } else {
+                None
+            }
+        }).collect()
+    }
+
+    pub fn is_neighbor(&self, other: &Self) -> bool {
+        ffi::is_neighbor(self.0, other.0)
+    }
 }
 
 impl Display for H3Cell {
