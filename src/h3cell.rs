@@ -281,7 +281,7 @@ impl H3Cell {
     }
 
     pub fn get_neighbors(&self, k: u32) -> Vec<H3Cell> {
-        let v = ffi::kRing(self.0, k);
+        let v = ffi::k_ring(self.0, k);
         v.into_iter().filter_map(|n| {
             if ffi::is_h3_valid(n) {
                 Some(Self(n))

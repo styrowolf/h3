@@ -16,7 +16,7 @@ pub fn geo_to_h3(gc: h3ron_h3_sys::GeoCoord, res: u32) -> u64 {
     unsafe { h3ron_h3_sys::geoToH3(&gc, res as std::os::raw::c_int) }
 } 
 
-pub fn kRing(h3: u64, k: u32) -> Vec<u64> {
+pub fn k_ring(h3: u64, k: u32) -> Vec<u64> {
     let capacity = unsafe { h3ron_h3_sys::maxKringSize(k as i32) };
     let vec: Vec<u64> = Vec::with_capacity(capacity as usize);
     let ptr = vec.as_ptr() as *mut u64;
