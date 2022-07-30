@@ -195,7 +195,7 @@ impl H3Cell {
         if s.is_base_cell_pentagon() {
             for digit in (parent_res + 1)..=res {
                 let val = rng.gen_range(0..=5);
-                let _ = s.set_digit(
+                s.set_digit(
                     digit,
                     match val {
                         1 => 6,
@@ -206,7 +206,7 @@ impl H3Cell {
         } else {
             for digit in (parent_res + 1)..=res {
                 let val = rng.gen_range(0..=6);
-                let _ = s.set_digit(digit, val);
+                s.set_digit(digit, val);
             }
         }
 
