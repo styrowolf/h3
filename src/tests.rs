@@ -17,7 +17,7 @@ fn check_resolution() -> Result<()> {
 #[test]
 fn randomly_generated_h3cell_is_valid() -> Result<()> {
     (0..=15u32).for_each(|res| {
-        let generated = H3Cell::generate_random(res).expect("randomly h3 generation not possible");
+        let generated = H3Cell::generate_random(res);
         println!("res: {}, generated h3: {:x}", res, generated.as_u64());
         println!("{}", generated.pretty_print());
         assert_ne!(unsafe { h3ron_h3_sys::h3IsValid(generated.as_u64()) }, 0);
@@ -30,11 +30,11 @@ fn randomly_generated_h3cell_is_valid() -> Result<()> {
 fn randomly_generated_from_parent_is_valid() {
     let mut rng = rand::thread_rng();
     (0..=15u32).for_each(|res| {
-        let parent = H3Cell::generate_random(res).unwrap();
-        let mut child = H3Cell::generate_from_parent(parent, rng.gen_range(res..=15)).unwrap();
+        let parent = H3Cell::generate_random(res);
+        let mut child = H3Cell::generate_from_parent(parent, rng.gen_range(res..=15));
         println!("generated h3: {:x}", child.as_u64());
         println!("{}", child.pretty_print());
         assert_ne!(unsafe { h3ron_h3_sys::h3IsValid(child.as_u64()) }, 0);
-        assert_eq!(child.get_parent(res).unwrap(), parent);
+        assert_eq!(child.get_parent(res), parent);
     })
 }

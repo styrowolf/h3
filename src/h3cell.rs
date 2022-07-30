@@ -25,32 +25,32 @@ impl H3Cell {
         self.0
     }
 
-    pub fn get_parent(&self, res: u32) -> Result<Self> {
+    pub fn get_parent(&self, res: u32) -> Self {
         if !(0..=self.get_resolution()).contains(&res) {
-            return Err(anyhow!("invalid parent resolution"));
+            panic!("invalid parent resolution");
         }
 
         if res == 0 {
             let mut parent = Self(0u64);
             let base = self.get_base_cell();
             parent.reset();
-            parent.set_base_cell(base)?;
-            return Ok(parent);
+            parent.set_base_cell(base);
+            return parent;
         }
 
         let mut parent = self.clone();
 
         if res == self.get_resolution() {
-            return Ok(self.clone())
+            return self.clone()
         }
 
-        parent.set_resolution(res)?;
+        parent.set_resolution(res);
 
         for digit in res+1..=self.get_resolution() {
-            parent.set_digit_unused(digit)?
+            parent.set_digit_unused(digit);
         }
 
-        Ok(parent)
+        parent
     }
 
     const PENTAGONS: [u32; 12] = [4, 14, 24, 38, 49, 58, 63, 72, 83, 97, 107, 117];
@@ -91,81 +91,72 @@ impl H3Cell {
         self.as_bit_view()[12..19].load_be()
     }
 
-    pub fn set_base_cell(&mut self, bc: u32) -> Result<()> {
+    pub fn set_base_cell(&mut self, bc: u32) {
         if !(0..=121).contains(&bc) {
-            return Err(anyhow!("invalid base cell"));
+            panic!("invalid base cell");
         };
         self.as_bit_view_mut()[12..19].store_be(bc);
-        Ok(())
     }
 
     pub fn get_resolution(&self) -> u32 {
         self.as_bit_view()[8..12].load_be()
     }
 
-    pub fn set_resolution(&mut self, res: u32) -> Result<()> {
+    pub fn set_resolution(&mut self, res: u32) {
         if !(0..=15).contains(&res) {
-            return Err(anyhow!("invalid resolution"));
+            panic!("invalid resolution");
         };
         self.as_bit_view_mut()[8..12].store_be(res);
-        Ok(())
     }
 
-    pub fn get_digit(&self, digit: u32) -> Result<u32> {
+    pub fn get_digit(&self, digit: u32) -> u32 {
         if !(1..=15).contains(&digit) {
-            return Err(anyhow!("invalid digit"));
+            panic!("invalid digit");
         };
         let digit_val =
             self.as_bit_view()[((16 + 3 * digit) as usize)..((19 + 3 * digit) as usize)].load_be();
-        Ok(digit_val)
+        digit_val
     }
 
-    pub fn set_digit(&mut self, digit: u32, val: u32) -> Result<()> {
+    pub fn set_digit(&mut self, digit: u32, val: u32) {
         if !(1..=15).contains(&digit) {
-            return Err(anyhow!("invalid digit"));
+            panic!("invalid digit");
         };
         if !(0..=6).contains(&val) {
-            return Err(anyhow!("invalid value"));
+            panic!("invalid value");
         };
         if self.is_base_cell_pentagon() && val == 1 {
-            return Err(anyhow!(
+            panic!(
                 "invalid value (1 is invalid for a cell with a pentagon base cell)"
-            ));
+            );
         }
         self.as_bit_view_mut()[((16 + 3 * digit) as usize)..((19 + 3 * digit) as usize)]
             .store_be(val);
-        Ok(())
     }
 
-    pub fn set_digit_unused(&mut self, digit: u32) -> Result<()> {
+    pub fn set_digit_unused(&mut self, digit: u32) {
         if !(1..=15).contains(&digit) {
-            return Err(anyhow!("invalid digit"));
+            panic!("invalid digit");
         };
         self.as_bit_view_mut()[((16 + 3 * digit) as usize)..((19 + 3 * digit) as usize)]
             .store_be(7);
-        Ok(())
     }
 
-    pub fn generate_random(res: u32) -> Result<Self> {
+    pub fn generate_random(res: u32) -> Self {
         let mut s = Self(0u64);
 
         let mut rng = rand::thread_rng();
 
         s.reset();
 
-        s.set_resolution(res)?;
+        s.set_resolution(res);
         let bc: u32 = rng.gen_range(0..=121);
-        s.set_base_cell(bc).unwrap();
-
-        for digit in 1..=res {
-            let val = rng.gen_range(0..=6);
-            let _ = s.set_digit(digit, val);
-        }
+        s.set_base_cell(bc);
 
         if s.is_base_cell_pentagon() {
             for digit in 1..=res {
                 let val = rng.gen_range(0..=5);
-                let _ = s.set_digit(
+                s.set_digit(
                     digit,
                     match val {
                         1 => 6,
@@ -176,35 +167,35 @@ impl H3Cell {
         } else {
             for digit in 1..=res {
                 let val = rng.gen_range(0..=6);
-                let _ = s.set_digit(digit, val);
+                s.set_digit(digit, val);
             }
         }
 
-        Ok(s)
+        s
     }
 
-    pub fn generate_from_parent(parent: H3Cell, res: u32) -> Result<Self> {
+    pub fn generate_from_parent(parent: H3Cell, res: u32) -> Self {
         let mut s = Self(0u64);
         let parent_res = parent.get_resolution();
 
         if parent_res > res {
-            return Err(anyhow!("parent res larger than child res"));
+            panic!("parent res larger than child res");
         };
 
         *s.as_bit_view_mut() |= &(*parent.as_bit_view());
 
         if parent_res == res {
-            return Ok(parent);
+            return parent;
         }
 
-        s.set_resolution(res)?;
+        s.set_resolution(res);
 
         let mut rng = rand::thread_rng();
 
         if s.is_base_cell_pentagon() {
             for digit in (parent_res + 1)..=res {
                 let val = rng.gen_range(0..=5);
-                let _ = s.set_digit(
+                s.set_digit(
                     digit,
                     match val {
                         1 => 6,
@@ -215,11 +206,11 @@ impl H3Cell {
         } else {
             for digit in (parent_res + 1)..=res {
                 let val = rng.gen_range(0..=6);
-                let _ = s.set_digit(digit, val);
+                s.set_digit(digit, val);
             }
         }
 
-        Ok(s)
+        s
     }
 
     pub fn pretty_print(&self) -> String {
@@ -236,7 +227,7 @@ impl H3Cell {
 
     pub fn valid_digits(&self) -> Vec<u32> {
         (1..=self.get_resolution())
-            .map(|digit| self.get_digit(digit).unwrap())
+            .map(|digit| self.get_digit(digit))
             .collect::<Vec<_>>()
     }
 
@@ -256,7 +247,7 @@ impl H3Cell {
 
         if self.get_base_cell() == other.get_base_cell() {
             for i in 1..=res_to_check_for {
-                let is_eq = self.get_digit(i).unwrap() == other.get_digit(i).unwrap();
+                let is_eq = self.get_digit(i) == other.get_digit(i);
                 match is_eq {
                     true => continue,
                     false => return Some(i-1),
