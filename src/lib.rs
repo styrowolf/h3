@@ -1,6 +1,7 @@
 mod ffi;
 mod h3cell;
 mod latlon;
+mod redis;
 
 #[cfg(test)]
 mod tests;
