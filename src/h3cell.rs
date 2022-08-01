@@ -4,8 +4,9 @@ use crate::ffi;
 use anyhow::{anyhow, Result};
 use bitvec::prelude::*;
 use rand::Rng;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct H3Cell(pub(crate) u64);
 
 impl H3Cell {
