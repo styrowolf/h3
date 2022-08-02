@@ -18,10 +18,11 @@ pub fn geo_to_h3(gc: h3ron_h3_sys::GeoCoord, res: u32) -> u64 {
 
 pub fn k_ring(h3: u64, k: u32) -> Vec<u64> {
     let capacity = unsafe { h3ron_h3_sys::maxKringSize(k as i32) };
-    let vec: Vec<u64> = Vec::with_capacity(capacity as usize);
-    let ptr = vec.as_ptr() as *mut u64;
+    let mut vec: Vec<u64> = Vec::with_capacity(capacity as usize);
+    let ptr = vec.as_mut_ptr() as *mut u64;
+    std::mem::forget(vec);
     unsafe { h3ron_h3_sys::kRing(h3, k as i32, ptr) };
-    vec
+    unsafe { Vec::from_raw_parts(ptr, capacity as usize, capacity as usize) }
 }
 
 pub fn is_neighbor(h1: u64, h2: u64) -> bool {
