@@ -4,7 +4,7 @@ use crate::ffi;
 use anyhow::{anyhow, Result};
 use bitvec::prelude::*;
 use rand::Rng;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct H3Cell(pub(crate) u64);
@@ -42,12 +42,12 @@ impl H3Cell {
         let mut parent = self.clone();
 
         if res == self.get_resolution() {
-            return self.clone()
+            return self.clone();
         }
 
         parent.set_resolution(res);
 
-        for digit in res+1..=self.get_resolution() {
+        for digit in res + 1..=self.get_resolution() {
             parent.set_digit_unused(digit);
         }
 
@@ -127,9 +127,7 @@ impl H3Cell {
             panic!("invalid value");
         };
         if self.is_base_cell_pentagon() && val == 1 {
-            panic!(
-                "invalid value (1 is invalid for a cell with a pentagon base cell)"
-            );
+            panic!("invalid value (1 is invalid for a cell with a pentagon base cell)");
         }
         self.as_bit_view_mut()[((16 + 3 * digit) as usize)..((19 + 3 * digit) as usize)]
             .store_be(val);
@@ -239,19 +237,15 @@ impl H3Cell {
     pub fn common_ancestor(&self, other: &Self) -> Option<u32> {
         let res_1 = self.get_resolution();
         let res_2 = other.get_resolution();
-        
-        let res_to_check_for = if res_1 > res_2 { 
-            res_2 
-        } else {
-            res_1
-        };
+
+        let res_to_check_for = if res_1 > res_2 { res_2 } else { res_1 };
 
         if self.get_base_cell() == other.get_base_cell() {
             for i in 1..=res_to_check_for {
                 let is_eq = self.get_digit(i) == other.get_digit(i);
                 match is_eq {
                     true => continue,
-                    false => return Some(i-1),
+                    false => return Some(i - 1),
                 }
             }
             Some(res_to_check_for)
@@ -274,13 +268,15 @@ impl H3Cell {
 
     pub fn get_neighbors(&self, k: u32) -> Vec<H3Cell> {
         let v = ffi::k_ring(self.0, k);
-        v.into_iter().filter_map(|n| {
-            if ffi::is_h3_valid(n) {
-                Some(Self(n))
-            } else {
-                None
-            }
-        }).collect()
+        v.into_iter()
+            .filter_map(|n| {
+                if ffi::is_h3_valid(n) {
+                    Some(Self(n))
+                } else {
+                    None
+                }
+            })
+            .collect()
     }
 
     pub fn is_neighbor(&self, other: &Self) -> bool {

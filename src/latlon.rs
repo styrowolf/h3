@@ -1,7 +1,7 @@
 use h3ron_h3_sys::GeoCoord;
 
-use crate::H3Cell;
 use crate::ffi;
+use crate::H3Cell;
 
 #[derive(Debug, Copy, Clone)]
 pub struct LatLon {
