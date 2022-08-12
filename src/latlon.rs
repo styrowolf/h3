@@ -36,6 +36,15 @@ impl From<h3ron_h3_sys::GeoCoord> for LatLon {
     }
 }
 
+impl From<[f64; 2]> for Latlon {
+    fn from(coordinates: [f64; 2]) -> Self {
+        LatLon {
+            lat: coordinates[0],
+            lon: coordinates[1],
+        }
+    }
+}
+
 impl Into<GeoCoord> for LatLon {
     fn into(self) -> GeoCoord {
         GeoCoord {
