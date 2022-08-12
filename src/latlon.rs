@@ -59,3 +59,9 @@ impl From<H3Cell> for LatLon {
         LatLon::from(ffi::h3_to_geo(h3index.as_u64()))
     }
 }
+
+impl Into<H3Cell> for LatLon {
+    fn into(self) -> H3Cell {
+        self.to_h3_cell(15)
+    }
+}
