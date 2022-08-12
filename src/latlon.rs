@@ -1,5 +1,3 @@
-use h3ron_h3_sys::GeoCoord;
-
 use crate::ffi;
 use crate::H3Cell;
 
@@ -21,7 +19,7 @@ impl LatLon {
     }
 
     pub fn to_h3_cell(&self, res: u32) -> H3Cell {
-        let gc: GeoCoord = self.clone().into();
+        let gc: h3ron_h3_sys::GeoCoord = self.clone().into();
         let h3index = ffi::geo_to_h3(gc, res);
         H3Cell(h3index)
     }
@@ -45,9 +43,15 @@ impl From<[f64; 2]> for LatLon {
     }
 }
 
-impl Into<GeoCoord> for LatLon {
-    fn into(self) -> GeoCoord {
-        GeoCoord {
+impl Into<[f64; 2]> for LatLon {
+    fn into(self) -> [f64; 2] {
+        [self.lat, self.lon]
+    }
+}
+
+impl Into<h3ron_h3_sys::GeoCoord> for LatLon {
+    fn into(self) -> h3ron_h3_sys::GeoCoord {
+        h3ron_h3_sys::GeoCoord {
             lat: self.lat / 180f64 * std::f64::consts::PI,
             lon: self.lon / 180f64 * std::f64::consts::PI,
         }
