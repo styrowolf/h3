@@ -36,7 +36,7 @@ impl From<h3ron_h3_sys::GeoCoord> for LatLon {
     }
 }
 
-impl From<[f64; 2]> for Latlon {
+impl From<[f64; 2]> for LatLon {
     fn from(coordinates: [f64; 2]) -> Self {
         LatLon {
             lat: coordinates[0],
