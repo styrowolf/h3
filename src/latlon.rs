@@ -69,3 +69,13 @@ impl Into<H3Cell> for LatLon {
         self.to_h3_cell(15)
     }
 }
+
+impl Into<google_maps::LatLng> for LatLon {
+    fn into(self) -> google_maps::LatLng {
+        use google_maps::prelude::Decimal;
+        google_maps::LatLng {
+            lat: Decimal::try_from(self.lat).unwrap(),
+            lng: Decimal::try_from(self.lon).unwrap(),
+        }
+    }
+}
