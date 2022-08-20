@@ -1,6 +1,6 @@
 use std::fmt::Display;
 
-use crate::ffi;
+use crate::{ffi, LatLon};
 use anyhow::{anyhow, Result};
 use bitvec::prelude::*;
 use rand::Rng;
@@ -306,4 +306,10 @@ impl TryFrom<u64> for H3Cell {
 pub enum TryFromError {
     #[error("H3 index is not valid")]
     InvalidH3Index,
+}
+
+impl Into<google_maps::LatLng> for H3Cell {
+    fn into(self) -> google_maps::LatLng {
+        LatLon::from(self).into()
+    }
 }
