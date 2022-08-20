@@ -313,3 +313,15 @@ impl Into<google_maps::LatLng> for H3Cell {
         LatLon::from(self).into()
     }
 }
+
+impl Into<google_maps::directions::Location> for H3Cell {
+    fn into(self) -> google_maps::directions::Location {
+        google_maps::directions::Location::LatLng(self.into())
+    }
+}
+
+impl Into<google_maps::directions::Waypoint> for H3Cell {
+    fn into(self) -> google_maps::directions::Waypoint {
+        google_maps::directions::Waypoint::LatLng(self.into())
+    }
+}
